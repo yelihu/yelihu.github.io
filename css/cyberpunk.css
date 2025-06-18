@@ -10804,6 +10804,9 @@ article.media .media-content .title {
   margin: 0;
   line-height: inherit;
 }
+article.article {
+  counter-reset: section;
+}
 article.article .article-meta,
 article.article .article-tags {
   color: #848484;
@@ -10811,6 +10814,27 @@ article.article .article-tags {
 article.article .article-meta {
   overflow-x: auto;
   margin-bottom: 0.5rem;
+}
+article.article h2 {
+  counter-reset: sub-section;
+}
+article.article h2:before {
+  content: counter(section) " ";
+  counter-increment: section;
+}
+article.article h3 {
+  counter-reset: composite;
+}
+article.article h3:before {
+  content: counter(section) "." counter(sub-section) " ";
+  counter-increment: sub-section;
+}
+article.article h4 {
+  counter-reset: detail;
+}
+article.article h4:before {
+  content: counter(section) "." counter(sub-section) "." counter(composite) " ";
+  counter-increment: composite;
 }
 article.article .content {
   word-wrap: break-word;
@@ -11398,6 +11422,10 @@ figure.highlight.foldable div.level-left {
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
   }
+  #toc {
+    max-height: calc(100vh - 22px);
+    overflow-y: scroll;
+  }
   #toc-mask {
     display: none;
     position: fixed;
@@ -11644,8 +11672,8 @@ figure.highlight.foldable div.level-left {
 @media screen and (min-width: 1280px) {
   .is-1-column .container,
   .is-2-column .container {
-    max-width: 960px;
-    width: 960px;
+    max-width: 1152px;
+    width: 1152px;
   }
 }
 @media screen and (min-width: 1472px) {
@@ -11677,6 +11705,37 @@ figure.highlight.foldable div.level-left {
   .section {
     padding: 1.5rem 1rem;
   }
+}
+.copyright.article-title {
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.copyright.article-title.type-1 {
+  color: #74cf59;
+  background-color: #eaf9e3;
+}
+.copyright.article-title.type-2 {
+  color: #ca0c16;
+  background-color: #f9ecec;
+}
+.copyright.article-block {
+  padding: 0.4em 0.8em;
+  margin-bottom: 1em;
+  border-radius: 0.3rem;
+  border-left: 5px solid #ca0c16;
+}
+.copyright.article-block P {
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow: hidden;
+}
+.copyright.article-block.type-1 {
+  border-left: 5px solid #74cf59;
+  background-color: #eaf9e3;
+}
+.copyright.article-block.type-2 {
+  border-left: 5px solid #ca0c16;
+  background-color: #f9ecec;
 }
 body {
   counter-reset: card;
