@@ -10840,20 +10840,41 @@ article.article .content {
   word-wrap: break-word;
   font-size: 1.1rem;
 }
+article.article .content h1,
+article.article .content h2,
+article.article .content h3,
+article.article .content h4,
+article.article .content h5,
+article.article .content h6 {
+  font-weight: 600;
+}
 article.article .content h1 {
   font-size: 1.75em;
+  margin-top: 80px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ddd;
 }
 article.article .content h2 {
   font-size: 1.5em;
+  margin-top: 70px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }
 article.article .content h3 {
   font-size: 1.25em;
+  margin-top: 65px;
 }
 article.article .content h4 {
   font-size: 1.125em;
+  margin-top: 60px;
 }
 article.article .content h5 {
   font-size: 1em;
+  margin-top: 55px;
+}
+article.article .content h6 {
+  font-size: 1em;
+  margin-top: 50px;
 }
 article.article .content pre {
   font-size: 0.85em;
