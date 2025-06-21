@@ -10839,6 +10839,10 @@ article.article h4:before {
 article.article .content {
   word-wrap: break-word;
   font-size: 1.1rem;
+  padding: 20px;
+}
+article.article .content p {
+  line-height: 1.8;
 }
 article.article .content h1,
 article.article .content h2,
@@ -10899,6 +10903,13 @@ article.article .content .message.message-immersive {
 }
 article.article .content .message.message-immersive .message-body {
   border: none;
+}
+article.article .content .mermaid {
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+  width: 75%;
+  border: 1px solid #ccc;
 }
 article.article .article-tags {
   display: flex;

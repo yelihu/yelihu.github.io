@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则? - 虎太郎園芸</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="虎太郎園芸"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="虎太郎園芸"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="想知道AI Agent领域的头部公司之一的Anthropic是如何构建高效代理的吗？告别复杂的框架和模糊的概念！这篇深度解读将带你直击核心，快速掌握那些已被海内外开发者奉为圭臬的实用原则。  架构的智慧：秒懂“工作流”与“代理”的核心区别，让你在项目开始时就做出正确的技术选型。 实用的模式库：获取一套即插即用的架构模式，从简单的提示链到强大的“协调器-工作者”模型，轻松应对各种复杂任务。 成功的秘"><meta property="og:type" content="blog"><meta property="og:title" content="「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则?"><meta property="og:url" content="https://yelihu.github.io/2025/06/20/%E6%B5%B7%E5%86%85%E5%A4%96Agent%E5%BC%80%E5%8F%91%E8%80%85%E5%A5%89%E4%B8%BA%E5%9C%AD%E8%87%AC%E7%9A%84%E5%8E%9F%E5%88%99/"><meta property="og:site_name" content="虎太郎園芸"><meta property="og:description" content="想知道AI Agent领域的头部公司之一的Anthropic是如何构建高效代理的吗？告别复杂的框架和模糊的概念！这篇深度解读将带你直击核心，快速掌握那些已被海内外开发者奉为圭臬的实用原则。  架构的智慧：秒懂“工作流”与“代理”的核心区别，让你在项目开始时就做出正确的技术选型。 实用的模式库：获取一套即插即用的架构模式，从简单的提示链到强大的“协调器-工作者”模型，轻松应对各种复杂任务。 成功的秘"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620203316728.png"><meta property="article:published_time" content="2025-06-20T12:32:02.000Z"><meta property="article:modified_time" content="2025-06-20T13:06:40.184Z"><meta property="article:author" content="虎太郎"><meta property="article:tag" content="AI"><meta property="article:tag" content="Agent设计"><meta property="article:tag" content="阅读2025"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620203316728.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://yelihu.github.io/2025/06/20/%E6%B5%B7%E5%86%85%E5%A4%96Agent%E5%BC%80%E5%8F%91%E8%80%85%E5%A5%89%E4%B8%BA%E5%9C%AD%E8%87%AC%E7%9A%84%E5%8E%9F%E5%88%99/"},"headline":"「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则?","image":["https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620203316728.png"],"datePublished":"2025-06-20T12:32:02.000Z","dateModified":"2025-06-20T13:06:40.184Z","author":{"@type":"Person","name":"虎太郎"},"publisher":{"@type":"Organization","name":"虎太郎園芸","logo":{"@type":"ImageObject","url":"https://yelihu.github.io/img/logo.svg"}},"description":"想知道AI Agent领域的头部公司之一的Anthropic是如何构建高效代理的吗？告别复杂的框架和模糊的概念！这篇深度解读将带你直击核心，快速掌握那些已被海内外开发者奉为圭臬的实用原则。  架构的智慧：秒懂“工作流”与“代理”的核心区别，让你在项目开始时就做出正确的技术选型。 实用的模式库：获取一套即插即用的架构模式，从简单的提示链到强大的“协调器-工作者”模型，轻松应对各种复杂任务。 成功的秘"}</script><link rel="canonical" href="https://yelihu.github.io/2025/06/20/%E6%B5%B7%E5%86%85%E5%A4%96Agent%E5%BC%80%E5%8F%91%E8%80%85%E5%A5%89%E4%B8%BA%E5%9C%AD%E8%87%AC%E7%9A%84%E5%8E%9F%E5%88%99/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link data-pjax rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="虎太郎園芸" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">首页</a><a class="navbar-item" href="/archives">Timeline</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于作者</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620203316728.png" alt="「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则?"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item copyright article-title type-2">原创</span><span class="level-item"><time dateTime="2025-06-20T12:32:02.000Z" title="2025/6/20 20:32:02">2025-06-20</time>发表</span><span class="level-item"><time dateTime="2025-06-20T13:06:40.184Z" title="2025/6/20 21:06:40">2025-06-20</time>更新</span><span class="level-item"> 虎太郎 </span><span class="level-item"><a class="link-muted" href="/categories/AI/">AI</a><span> / </span><a class="link-muted" href="/categories/AI/Agent%E8%AE%BE%E8%AE%A1/">Agent设计</a></span><span class="level-item">21 分钟读完 (大约3114个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则?</h1><div class="copyright article-block type-2"><p>版权申明：本文为原创文章，转载请注明原文出处</p><p>原文链接：<a href="https://yelihu.github.io/2025/06/20/%E6%B5%B7%E5%86%85%E5%A4%96Agent%E5%BC%80%E5%8F%91%E8%80%85%E5%A5%89%E4%B8%BA%E5%9C%AD%E8%87%AC%E7%9A%84%E5%8E%9F%E5%88%99/" target="_blank">yelihu.github.io</a></p></div><div class="content"><p>想知道AI Agent领域的头部公司之一的Anthropic是如何构建高效代理的吗？告别复杂的框架和模糊的概念！这篇深度解读将带你直击核心，快速掌握那些已被海内外开发者奉为圭臬的实用原则。</p>
+<ul>
+<li><strong>架构的智慧</strong>：秒懂“工作流”与“代理”的核心区别，让你在项目开始时就做出正确的技术选型。</li>
+<li><strong>实用的模式库</strong>：获取一套即插即用的架构模式，从简单的提示链到强大的“协调器-工作者”模型，轻松应对各种复杂任务。</li>
+<li><strong>成功的秘诀</strong>：揭秘常被忽视的关键</li>
+</ul>
+<p>别再盲目堆砌功能，这篇文章将为你提供一套清晰、简洁且经过验证的构建哲学。点击查看，立即升级你的Agent构建技能！</p>
+<span id="more"></span> 
+
+<h1 id="关于高效构建Agent：Anthropic说了哪些让海内外AI-Agent开发者奉为圭臬的原则。"><a href="#关于高效构建Agent：Anthropic说了哪些让海内外AI-Agent开发者奉为圭臬的原则。" class="headerlink" title="关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则。"></a>关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则。</h1><p>全<a target="_blank" rel="noopener" href="https://www.anthropic.com/engineering/building-effective-agents">文章内容</a>比较长，整理大纲如下，看看有没有你感兴趣的话题：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">构建高效的AI代理</span><br><span class="line"> ├─ 1. 代理系统的定义 </span><br><span class="line"> │   ├─ 工作流 (Workflows) </span><br><span class="line"> │   └─ 代理 (Agents) </span><br><span class="line"> │</span><br><span class="line"> ├─ 2. 构建模块与工作流模式 </span><br><span class="line"> │   ├─ 基础模块：增强型LLM </span><br><span class="line"> │   └─ 常见工作流模式 </span><br><span class="line"> │</span><br><span class="line"> ├─ 3. 自主代理 </span><br><span class="line"> │   ├─ 概念与运行方式 </span><br><span class="line"> │   ├─ 适用场景 </span><br><span class="line"> │   └─ 注意事项 </span><br><span class="line"> │</span><br><span class="line"> ├─ 4. 实践应用 </span><br><span class="line"> │   ├─ 客户支持 </span><br><span class="line"> │   └─ 编程代理 </span><br><span class="line"> │</span><br><span class="line"> └─ 5. 核心原则与总结 </span><br><span class="line">     ├─ 核心理念 </span><br><span class="line">     └─ 三大原则 </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="代理系统的定义"><a href="#代理系统的定义" class="headerlink" title="代理系统的定义"></a>代理系统的定义</h2><p>Anthropic定义Agent的时候和Open AI不太一样，Anthropic认为Agent有如下的区别性的特征：</p>
+<ul>
+<li>Workflows are systems where LLMs and tools are orchestrated through predefined code paths.</li>
+<li>Agents, on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks. 认为Agent动态地指导自己的流程和工具使用，保持对如何完成任务的控制。</li>
+</ul>
+<blockquote>
+<p>所以如果你的系统基于两个纯问答&#x2F;处理普通任务的Prompt，那不是Agent，那只是个Chat APP 😂</p>
+</blockquote>
+<p>那么什么时候用&#x2F;不用Agent呢？Anthropic给出下面几个参考</p>
+<ul>
+<li><strong>使用Agent</strong> <ul>
+<li>允许以延迟和成本为代价换取更好的任务性能 Agentic systems often trade latency and cost for better task performance</li>
+<li>需要灵活性和模型驱动决策的规模上是更好的选择 when flexibility and model-driven decision-making are needed at scale.</li>
+</ul>
+</li>
+<li><strong>使用Workflow</strong> <ul>
+<li>工作流为明确定义的任务提供了可预测性和一致性 workflows offer predictability and consistency for well-defined tasks</li>
+</ul>
+</li>
+<li>常规的单LLM Prompt调用：Anthropic认为大部分应用结合RAG和在Prompt上下文里面给出几个示例其实就够用了。</li>
+</ul>
+<p>LangChain&#x2F;Graph? 这些AI 框架要不要用？</p>
+<p>框架的存在就是为了使得Agent系统更容易搭建。Anthropic很多框架在低级任务上做一些封装（低级任务就是帮你发起LLM API的网络调用、帮助你定义Tool…这些封装就是低级封装），这样的封装带来复杂性。</p>
+<h2 id="构建模块与工作流模式"><a href="#构建模块与工作流模式" class="headerlink" title="构建模块与工作流模式"></a>构建模块与工作流模式</h2><p>这里Anthropic介绍了几个常见的Agent的系统模式，大概有如下几种</p>
+<h3 id="The-augmented-LLM"><a href="#The-augmented-LLM" class="headerlink" title="The augmented LLM"></a>The augmented LLM</h3><p>The augmented LLM 增强LLM：这个是基础的构建块，在Anthropic眼里，一个最基本的Agent系统构成就是一个能够使用retrieval, tools, and memory能力的LLM，要求模型能够主动检索查询，选择工具。</p>
+<p>如何给LLM增强（<em>augmented</em>）呢？Anthropic建议使用MCP</p>
+<h3 id="Workflow"><a href="#Workflow" class="headerlink" title="Workflow:"></a>Workflow:</h3><h4 id="Prompt-chaining"><a href="#Prompt-chaining" class="headerlink" title="Prompt chaining"></a>Prompt chaining</h4><p>将任务拆成流水线，每个LLM Call分别接收上游带来的产物，另外过程中可能会有叫做Gate（门限）的东西去做一些路由&#x2F;校验。</p>
+<p><strong>什么时候选用这模式？</strong> 如果你的业务能够轻松干净的拆分出来固定的子任务（<em>task can be easily and cleanly decomposed into fixed subtasks</em>），那就可以用这个模式去套用创建Agent系统。比如生成文档、营销内容。</p>
+<h4 id="Routing"><a href="#Routing" class="headerlink" title="Routing"></a>Routing</h4><p>在最前面价格分类路由LLM节点，如果业务有明显的分类处理的复杂任务就可以适用这个模式，当然，前面的分类节点也可以采用别的实现，比如传统的AI文本分类算法。</p>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image%3Furl%3Dhttps%253A%252F%252Fwww-cdn.anthropic.com%252Fimages%252F4zrzovbb%252Fwebsite%252F5c0c0e9fe4def0b584c04d37849941da55e5e71c-2401x1000.png%26w%3D3840%26q%3D75" alt="img"></p>
+<p>Routing节点用于将服务引导到下游流程，还有一个值得提倡的点是，如果有简单的任务交付给下游的LLM节点的，我们可以在下游的LLM节点的设置上给他配置一个相对小尺寸低成本的模型。能够更好的均衡整个系统的性能和成本。</p>
+<h4 id="Parallelization"><a href="#Parallelization" class="headerlink" title="Parallelization"></a>Parallelization</h4><p>并行化，第一段就是由多个节点接收相同数据产出结果之后交给一个聚合结果的节点，结果来自多个LLM节点，适用的场景可以是手动拆分输入之后并行交给LLM处理，这样速度快很多（从调用上虽然增加了，但是LLM是用Token计费的，所以 并发度✕N 并不代表成本 ✕N ）</p>
+<p>另外，如果你需要多个视角去考虑、审视、处理输入的时候，使用这个模式。因为LLM在处理单角度观点的输出的时候，表现会更加优秀。</p>
+<p>还可以这样设计，其中1个LLM我们可以用来设置护栏（<em>Guardrails，之前在Open AI的文章里面也看到这个词了</em>） ，这样也比在同一个Prompt里面去处理会更好，注意力更集中。</p>
+<p>除了并行的去处理事情提高速度，我们还可以用来做一些类似投票的事情。举例Code Review的场景，多个不同Prompt的LLM共同参与能发现更多的可能的缺陷，或者是用来审查不良内容，对不良内容进行投票处理。</p>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image%3Furl%3Dhttps%253A%252F%252Fwww-cdn.anthropic.com%252Fimages%252F4zrzovbb%252Fwebsite%252F406bb032ca007fd1624f261af717d70e6ca86286-2401x1000.png%26w%3D3840%26q%3D75" alt="img"></p>
+<h4 id="Orchestrator-workers"><a href="#Orchestrator-workers" class="headerlink" title="Orchestrator-workers"></a>Orchestrator-workers</h4><p>在协调器-工作者工作流中，中央 LLM 动态地分解任务，将它们分配给工作者 LLM，并合成他们的结果。此工作流非常适合无法预测所需子任务的复杂任务。</p>
+<p>并行化的描述里面也出现了子任务，那么这个子任务的区别是什么？<strong>区别在于，这个子任务是LLM也就是中央LLM节点产出的，不是开发者手动定义的</strong>。</p>
+<p>这种模式特别适合处理复杂任务，比如跨文件的编码任务，其中一个LLM节点负责编码产出代码，另外一个不断的在循环中评估是否能够满足我们的任务需求。</p>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image%3Furl%3Dhttps%253A%252F%252Fwww-cdn.anthropic.com%252Fimages%252F4zrzovbb%252Fwebsite%252F8985fc683fae4780fb34eab1365ab78c7e51bc8e-2401x1000.png%26w%3D3840%26q%3D75" alt="img"></p>
+<h4 id="The-evaluator-optimizer"><a href="#The-evaluator-optimizer" class="headerlink" title="The evaluator-optimizer"></a>The evaluator-optimizer</h4><p>评估-优化工作流，什么时候使用？当我们有明确的评估标准，并且迭代改进能够提供可衡量的价值时，此工作流特别有效。好的评估标准（比如用户手动提供或者LLM自己提供）能够明显的提升LLM的产出质量。</p>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image%3Furl%3Dhttps%253A%252F%252Fwww-cdn.anthropic.com%252Fimages%252F4zrzovbb%252Fwebsite%252F14f51e6406ccb29e695da48b17017e899a6119c7-2401x1000.png%26w%3D3840%26q%3D75" alt="img"></p>
+<p>在文学翻译、多轮搜索，这种场景特别适合</p>
+<h3 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h3><p>LLM在哪些方面能力的成熟，推动了LLM到Agents的进化？→ 理解复杂输入、进行推理和规划、可靠地使用工具以及从错误中恢复understanding complex inputs, engaging in reasoning and planning, using tools reliably, and recovering from error。</p>
+<p>Agents适用的场景就是“难以或不可能预测所需步骤数的开放问题”，另外要求用户对LLM的决策有一定的信任度和宽容度。</p>
+<blockquote>
+<p>如果是企业里面的取数或者根据数据做一些业务决策，这种其实对信任度要求就很高，不一定适合Agent</p>
+</blockquote>
+<p>Agents区别于之前的Workflow实现，Agents能够</p>
+<ol>
+<li><strong>确认计划</strong>：在一旦任务明确，代理就会独立计划并操作，可能返回向人类请求进一步的信息或判断。</li>
+<li><strong>执行并自助获得反馈+上下文</strong>：在执行过程中，对于代理来说，在每一步都从环境中获得“真实情况”（例如工具调用结果或代码执行）以评估其进展至关重要。然后，代理可以在检查点或遇到障碍时暂停等待人类反馈。</li>
+<li><strong>自主停止和确认任务完成</strong>：任务通常会在完成时终止，但常见的做法是包括停止条件（如最大迭代次数）以保持控制。</li>
+</ol>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image%3Furl%3Dhttps%253A%252F%252Fwww-cdn.anthropic.com%252Fimages%252F4zrzovbb%252Fwebsite%252F58d9f10c985c4eb5d53798dea315f7bb5ab6249e-2401x1000.png%26w%3D3840%26q%3D75" alt="img"></p>
+<p>Agent的成本更高，风险也越高，所以Anthropic建议我们在sandbox环境充分测试，并设置适当的护栏。</p>
+<p>Anthropic的在编码场景的Agent建设，为了解决编码问题，引入了很多复杂的Agent能力，比如ComputeUse，从设计上看，有很多亮点。</p>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image%3Furl%3Dhttps%253A%252F%252Fwww-cdn.anthropic.com%252Fimages%252F4zrzovbb%252Fwebsite%252F4b9a1f4eb63d5962a6e1746ac26bbc857cf3474f-2400x1666.png%26w%3D3840%26q%3D75" alt="img"></p>
+<ol>
+<li>先和用户确认澄清，直到任务Clear</li>
+<li>编码过程中，循环执行写代码、确认状态（比如编译状态，或者联想下 Cursor也会在某个阶段确认IDE Lint状态）、测试、获得结果</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Anthropic认为，构建Agent成功的关键在于衡量性能并且迭代实现，没有必要不要增加复杂性。Anthropic始终遵循三大核心原则。</p>
+<ol>
+<li>在代理设计中保持简洁。</li>
+<li>通过明确显示代理的规划步骤来优先考虑透明度。</li>
+<li>通过彻底的工具文档和测试精心打造您的代理-计算机接口 agent-computer interface (ACI) 。</li>
+</ol>
+<p>另外还提了一嘴，don’t hesitate to reduce abstraction layers and build with basic components as you move to production. <em>看来Anthropic对框架的态度还是比较负面的。</em></p>
+<h2 id="附录里面比较有价值的内容"><a href="#附录里面比较有价值的内容" class="headerlink" title="附录里面比较有价值的内容"></a>附录里面比较有价值的内容</h2><p>Anthropic认为描述Tool的时候，Put yourself in the model’s shoes，要求我们把自己当做LLM，我们自己能够根据工具的定义清晰的知道根据怎么用，能够实现什么事情。还能知道一些示例用法、边缘情况、输入格式要求以及与其他工具的清晰界限。</p>
+<p>Anthropic在处理工具描述上面花了和整体Prompt差不多的时间去打磨优化。</p>
+<blockquote>
+<p>这个在做MCP Server的时候印象特别深刻，成功结果的描述、包括失败的反馈的message对于LLM都有充分的指导意义，LLM能够很快的根据反馈的建议选择继续推进还是完成任务结束。</p>
+</blockquote>
+<p>另外，工具要做防呆机制（Poka-yoke your tool），通过修改参数，让他难以在LLM的驱使下犯下低级错误。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则?</p><p><a href="https://yelihu.github.io/2025/06/20/海内外Agent开发者奉为圭臬的原则/">https://yelihu.github.io/2025/06/20/海内外Agent开发者奉为圭臬的原则/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>虎太郎</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2025-06-20</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-06-20</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/AI/">AI</a><a class="link-muted mr-2" rel="tag" href="/tags/Agent%E8%AE%BE%E8%AE%A1/">Agent设计</a><a class="link-muted mr-2" rel="tag" href="/tags/%E9%98%85%E8%AF%BB2025/">阅读2025</a></div><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a><a class="a2a_button_facebook"></a><a class="a2a_button_twitter"></a><a class="a2a_button_telegram"></a><a class="a2a_button_whatsapp"></a><a class="a2a_button_reddit"></a></div><script src="https://static.addtoany.com/menu/page.js" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2025/06/20/%E5%9C%A8%E6%B7%B1%E5%85%A5JUC%E4%B9%8B%E5%89%8D%EF%BC%8C%E6%88%91%E6%83%B3%E5%85%88%E6%A2%B3%E7%90%86%E4%B8%80%E4%B8%8B%E5%85%B3%E4%BA%8EJMM%E7%9A%84%E5%86%85%E5%AE%B9/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">在深入JUC之前，我想先聊聊一下关于JMM的内容</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2025/06/19/%E8%AF%BBOpenAI%E6%8C%87%E5%8D%97%EF%BC%9A%E6%9E%84%E5%BB%BA%E9%AB%98%E6%95%88AI-Agent%E7%9A%84%E4%BA%94%E5%A4%A7%E6%A0%B8%E5%BF%83%E8%A6%81%E7%82%B9/"><span class="level-item">「AI观察」读OpenAI指南：构建高效AI Agent的五大核心要点</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/avatar.jpg" alt="虎太郎園芸"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">虎太郎園芸</p><p class="is-size-6 is-block">Javaer｜Full Stack Developer Learner｜AI｜园艺爱好者</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>中国杭州</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">12</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">23</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/yelihu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/yelihu"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Twitter" href="https://twitter.com/yelihu.ylh"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">目录</h3><ul class="menu-list"><li><a class="level is-mobile" href="#关于高效构建Agent：Anthropic说了哪些让海内外AI-Agent开发者奉为圭臬的原则。"><span class="level-left"><span class="level-item">1</span><span class="level-item">关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则。</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#代理系统的定义"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">代理系统的定义</span></span></a></li><li><a class="level is-mobile" href="#构建模块与工作流模式"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">构建模块与工作流模式</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#The-augmented-LLM"><span class="level-left"><span class="level-item">1.2.1</span><span class="level-item">The augmented LLM</span></span></a></li><li><a class="level is-mobile" href="#Workflow"><span class="level-left"><span class="level-item">1.2.2</span><span class="level-item">Workflow:</span></span></a></li><li><a class="level is-mobile" href="#Agents"><span class="level-left"><span class="level-item">1.2.3</span><span class="level-item">Agents</span></span></a></li></ul></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">1.3</span><span class="level-item">总结</span></span></a></li><li><a class="level is-mobile" href="#附录里面比较有价值的内容"><span class="level-left"><span class="level-item">1.4</span><span class="level-item">附录里面比较有价值的内容</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="虎太郎園芸" height="28"></a><p class="is-size-7"><span>&copy; 2025 虎太郎</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><script src="https://cdn.bootcdn.net/ajax/libs/mermaid/8.14.0/mermaid.min.js"></script><script>mermaid.initialize({"theme":"default","startOnLoad":true});</script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>

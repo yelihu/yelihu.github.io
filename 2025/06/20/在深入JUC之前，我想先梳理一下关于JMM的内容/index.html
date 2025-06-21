@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>在深入JUC之前，我想先聊聊一下关于JMM的内容 - 虎太郎園芸</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="虎太郎園芸"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="虎太郎園芸"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="本文深入探讨了Java内存模型（JMM）的核心概念，从CPU与内存的速度矛盾出发，解释了可见性、有序性和原子性三大并发问题，并详细介绍了JMM如何通过工作内存、八大内存交互操作、内存屏障以及Happens-Before规则来解决这些问题，为理解Java并发编程（JUC）打下坚实基础。"><meta property="og:type" content="blog"><meta property="og:title" content="在深入JUC之前，我想先聊聊一下关于JMM的内容"><meta property="og:url" content="https://yelihu.github.io/2025/06/20/%E5%9C%A8%E6%B7%B1%E5%85%A5JUC%E4%B9%8B%E5%89%8D%EF%BC%8C%E6%88%91%E6%83%B3%E5%85%88%E6%A2%B3%E7%90%86%E4%B8%80%E4%B8%8B%E5%85%B3%E4%BA%8EJMM%E7%9A%84%E5%86%85%E5%AE%B9/"><meta property="og:site_name" content="虎太郎園芸"><meta property="og:description" content="本文深入探讨了Java内存模型（JMM）的核心概念，从CPU与内存的速度矛盾出发，解释了可见性、有序性和原子性三大并发问题，并详细介绍了JMM如何通过工作内存、八大内存交互操作、内存屏障以及Happens-Before规则来解决这些问题，为理解Java并发编程（JUC）打下坚实基础。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620224938011.png"><meta property="article:published_time" content="2025-06-20T14:41:21.000Z"><meta property="article:modified_time" content="2025-06-21T04:18:27.068Z"><meta property="article:author" content="虎太郎"><meta property="article:tag" content="JMM"><meta property="article:tag" content="Java并发"><meta property="article:tag" content="内存模型"><meta property="article:tag" content="Happens-Before"><meta property="article:tag" content="并发编程"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620224938011.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://yelihu.github.io/2025/06/20/%E5%9C%A8%E6%B7%B1%E5%85%A5JUC%E4%B9%8B%E5%89%8D%EF%BC%8C%E6%88%91%E6%83%B3%E5%85%88%E6%A2%B3%E7%90%86%E4%B8%80%E4%B8%8B%E5%85%B3%E4%BA%8EJMM%E7%9A%84%E5%86%85%E5%AE%B9/"},"headline":"在深入JUC之前，我想先聊聊一下关于JMM的内容","image":["https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620224938011.png"],"datePublished":"2025-06-20T14:41:21.000Z","dateModified":"2025-06-21T04:18:27.068Z","author":{"@type":"Person","name":"虎太郎"},"publisher":{"@type":"Organization","name":"虎太郎園芸","logo":{"@type":"ImageObject","url":"https://yelihu.github.io/img/logo.svg"}},"description":"本文深入探讨了Java内存模型（JMM）的核心概念，从CPU与内存的速度矛盾出发，解释了可见性、有序性和原子性三大并发问题，并详细介绍了JMM如何通过工作内存、八大内存交互操作、内存屏障以及Happens-Before规则来解决这些问题，为理解Java并发编程（JUC）打下坚实基础。"}</script><link rel="canonical" href="https://yelihu.github.io/2025/06/20/%E5%9C%A8%E6%B7%B1%E5%85%A5JUC%E4%B9%8B%E5%89%8D%EF%BC%8C%E6%88%91%E6%83%B3%E5%85%88%E6%A2%B3%E7%90%86%E4%B8%80%E4%B8%8B%E5%85%B3%E4%BA%8EJMM%E7%9A%84%E5%86%85%E5%AE%B9/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link data-pjax rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="虎太郎園芸" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">首页</a><a class="navbar-item" href="/archives">Timeline</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于作者</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/image-20250620224938011.png" alt="在深入JUC之前，我想先聊聊一下关于JMM的内容"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item copyright article-title type-2">原创</span><span class="level-item"><time dateTime="2025-06-20T14:41:21.000Z" title="2025/6/20 22:41:21">2025-06-20</time>发表</span><span class="level-item"><time dateTime="2025-06-21T04:18:27.068Z" title="2025/6/21 12:18:27">2025-06-21</time>更新</span><span class="level-item"> 虎太郎 </span><span class="level-item"><a class="link-muted" href="/categories/Java/">Java</a><span> / </span><a class="link-muted" href="/categories/Java/%E6%8A%80%E6%9C%AF/">技术</a></span><span class="level-item">26 分钟读完 (大约3890个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">在深入JUC之前，我想先聊聊一下关于JMM的内容</h1><div class="copyright article-block type-2"><p>版权申明：本文为原创文章，转载请注明原文出处</p><p>原文链接：<a href="https://yelihu.github.io/2025/06/20/%E5%9C%A8%E6%B7%B1%E5%85%A5JUC%E4%B9%8B%E5%89%8D%EF%BC%8C%E6%88%91%E6%83%B3%E5%85%88%E6%A2%B3%E7%90%86%E4%B8%80%E4%B8%8B%E5%85%B3%E4%BA%8EJMM%E7%9A%84%E5%86%85%E5%AE%B9/" target="_blank">yelihu.github.io</a></p></div><div class="content"><h3 id="引子：面试官的”灵魂拷问”"><a href="#引子：面试官的”灵魂拷问”" class="headerlink" title="引子：面试官的”灵魂拷问”"></a><strong>引子：面试官的”灵魂拷问”</strong></h3><blockquote>
+<p>了解过 JMM 吗？为什么要有 JMM？知道八种内存交互操作吗？为什么要有这八种操作？了解过内存屏障吗？那为什么需要内存屏障呢？了解过 happens-before 规则吗？原子性、可见性、有序性，如何保证？</p>
+</blockquote>
+<p>要聊 JMM，就得从计算机的发展史说起。</p>
+<h3 id="问题的根源：CPU-与内存的速度矛盾"><a href="#问题的根源：CPU-与内存的速度矛盾" class="headerlink" title="问题的根源：CPU 与内存的速度矛盾"></a><strong>问题的根源：CPU 与内存的速度矛盾</strong></h3><p>在计算机系统的发展过程中，存储设备的速度差异催生了多级缓存架构。由于磁盘I&#x2F;O速度相对较慢，系统引入了内存作为缓存层，将程序数据预先加载到内存中，从而显著提升了程序执行效率。</p>
+<table>
+<thead>
+<tr>
+<th>存储器类型</th>
+<th>访问时间</th>
+<th>相对速度比较</th>
+<th>相对内存速度(倍数)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CPU寄存器</td>
+<td>1纳秒</td>
+<td>最快</td>
+<td>100倍</td>
+</tr>
+<tr>
+<td>CPU缓存(L1)</td>
+<td>2-4纳秒</td>
+<td>非常快</td>
+<td>25-50倍</td>
+</tr>
+<tr>
+<td>CPU缓存(L2)</td>
+<td>10-20纳秒</td>
+<td>快</td>
+<td>5-10倍</td>
+</tr>
+<tr>
+<td>内存(RAM)</td>
+<td>100纳秒</td>
+<td>较慢</td>
+<td>1倍</td>
+</tr>
+<tr>
+<td>固态硬盘</td>
+<td>25微秒</td>
+<td>很慢</td>
+<td>1&#x2F;250倍</td>
+</tr>
+<tr>
+<td>机械硬盘</td>
+<td>8毫秒</td>
+<td>极慢</td>
+<td>1&#x2F;80000倍</td>
+</tr>
+</tbody></table>
+<p>从上表可以看出,从CPU寄存器到机械硬盘,访问速度相差高达数百万倍。以内存访问速度为基准,CPU寄存器的访问速度是内存的100倍,而机械硬盘却只有内存速度的1&#x2F;80000。这种巨大的速度差异正是引入多级缓存体系的根本原因。</p>
+<p>然而，即使是内存的访问速度，相对于CPU的处理能力而言仍然存在较大差距。为了进一步缩小这一性能鸿沟，现代CPU设计中引入了多级缓存体系。在这种架构下，CPU首先将数据从主内存加载到高速缓存中，随后直接从缓存读取数据进行运算，完成计算后再将结果写回主内存。</p>
+<p>现代CPU通常采用三级缓存架构：</p>
+<ul>
+<li>一级缓存（L1）和二级缓存（L2）为每个CPU核（Core）私有，提供最快的数据访问速度</li>
+<li>三级缓存（L3）则在多个核间共享，作为核间数据交换的缓冲区。</li>
+</ul>
+<p>当一个核心修改了L1或L2缓存中的数据，并需要让其他核心可见时，这些数据会向上层缓存写入。如果这些数据最终被写入L3缓存，那么其他核心可以直接从共享的L3缓存读取，而不需要去更慢的主内存中获取，大大减少了数据同步的延迟。</p>
+<p><img src="https://hexo-yelihu.oss-cn-hangzhou.aliyuncs.com/hexo/img/1690856674900.png" alt="img"></p>
+<p>那么问题来了：</p>
+<h4 id="可见性问题"><a href="#可见性问题" class="headerlink" title="可见性问题"></a>可见性问题</h4><p>当一个 CPU 核心执行某个线程任务时，它修改了自己缓存中的数据，但这些数据还没有同步到主存中。此时，其他 CPU 核心去执行另外一个线程任务，它从主存中读到的数据不就是脏数据了吗？一个线程修改了共享数据，另外一个线程无法立即获得最新的共享数据，这就是<strong>可见性问题</strong>。</p>
+<h4 id="有序性问题"><a href="#有序性问题" class="headerlink" title="有序性问题"></a>有序性问题</h4><p>问题又来了。在执行代码的时候，为了提升执行速度，CPU 或者编译器可能会对指令进行重排序，导致执行的顺序和代码的顺序不一致。<br>有些操作（如内存访问）可能需要较长时间。通过重排序，CPU可以在等待这些耗时操作完成的同时，去执行其他不依赖于这些结果的独立指令，从而避免CPU空闲，提高其利用率。</p>
+<blockquote>
+<p><strong>那么哪些指令会优先执行呢</strong>？比如操作数已经ready、或者指令不依赖任何数据、允许提前Load数据以便后续计算使用的指令…</p>
+</blockquote>
+<p>指令重排序可以保证单线程内串行执行的语义一致性，但是没有办法保证多线程并发执行的语义一致性。所以在多线程去访问一个共享变量时，某个线程就有可能在时间线上看到别的线程因为打乱顺序导致的”half-baked product”  (假设按照正常期望得到一个成品，但是因为调整了执行顺序，就看到了半成品)。</p>
+<p>这就是<strong>有序性问题</strong>。</p>
+<h4 id="原子性问题"><a href="#原子性问题" class="headerlink" title="原子性问题"></a>原子性问题</h4><p>问题又又又来了。在多线程并发的环境中，比如说，线程 A 读到的库存是 1，正想做库存减 1 的操作。但是，它只是读到了数据，还没执行减 1 的操作，CPU 的时间片就用完了。线程 B 拿到了时间片开始执行，把库存减 1，此时库存变成了 0。然后，线程 A 再执行减 1 的操作，库存就变成 -1 了。那库存能是负数吗？肯定不能。所以，<strong>一个线程去执行一系列不可分割的操作时，在执行过程中却被其他线程插手了，这就是原子性问题</strong>。</p>
+<h3 id="JMM-的诞生：为了跨平台"><a href="#JMM-的诞生：为了跨平台" class="headerlink" title="JMM 的诞生：为了跨平台"></a>JMM 的诞生：为了跨平台</h3><p>所以，整个并发编程的核心，就是去解决可见性、有序性和原子性问题。操作系统通过内存模型定义了一系列规范去解决这些问题，但是不同的操作系统的内存模型是不同的。</p>
+<p>如果 Java 直接复用操作系统的内存模型，就有可能会导致同样一套代码，换了个操作系统它就无法执行了。但是 Java 当时的口号是什么？”一次编译，处处运行”。为了达到跨平台的目标，所以 Java 需要自己去提供一套内存模型，去屏蔽不同操作系统之间的差异。这就是 <strong>Java 内存模型（Java Memory Model, JMM）</strong>。</p>
+<h3 id="JMM-的解决方案"><a href="#JMM-的解决方案" class="headerlink" title="JMM 的解决方案"></a>JMM 的解决方案</h3><p>那 JMM 干了啥呢？怎么解决问题的呢？</p>
+<p>JMM 定义了一套并发编程相关的规范，抽象了缓存、线程、主存之间的关系，去解决这些问题。</p>
+<blockquote>
+<p>不同的 JVM 厂商（如 HotSpot、J9）都需要遵循 JMM 规范，但具体实现可以不同。</p>
+</blockquote>
+<h4 id="工作内存与主存的抽象"><a href="#工作内存与主存的抽象" class="headerlink" title="工作内存与主存的抽象"></a><strong>工作内存与主存的抽象</strong></h4><p>JMM的抽象方式基于CPU执行指令的实际过程。在实际执行中，CPU需要将主存中的数据读取到缓存，然后再读取到寄存器中进行计算。基于这一机制，JMM将寄存器、缓存这些线程私有的存储区域统一抽象为<strong>工作内存（Working Memory）</strong>。</p>
+<pre class="mermaid">graph TD;
+subgraph 工作内存
+    寄存器;
+    缓存;
+end</pre>
+
+<p>工作内存是线程私有的计算区域，每个线程的工作内存相互独立。线程在执行时必须将主存中的数据读取到自己的工作内存中，<strong>完成计算后再将结果刷新回主存。</strong></p>
+<h4 id="八大内存交互操作"><a href="#八大内存交互操作" class="headerlink" title="八大内存交互操作"></a><strong>八大内存交互操作</strong></h4><p>抽象出了工作内存之后，JMM 规定了一套主存和工作内存之间的交互方式来读写数据。简单来说，就是一个共享变量如何从主存拷贝到工作内存，又如何从工作内存同步到主存。</p>
+<p>针对这个问题，JMM 规定了八种主存与工作内存交互的原子操作：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>作用域</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>lock（锁定）</td>
+<td>主内存的变量</td>
+<td>把变量标识为一条线程独占的状态</td>
+</tr>
+<tr>
+<td>unlock（解锁）</td>
+<td>主内存的变量</td>
+<td>解除变量的锁定状态</td>
+</tr>
+<tr>
+<td>read（读取）</td>
+<td>主内存的变量</td>
+<td>把一个变量的值从主内存传输到线程的工作内存中</td>
+</tr>
+<tr>
+<td>load（载入）</td>
+<td>工作内存的变量</td>
+<td>把 read 操作从主内存中得到的变量值放入工作内存的变量副本中</td>
+</tr>
+<tr>
+<td>use（使用）</td>
+<td>工作内存的变量</td>
+<td>把工作内存中一个变量的值传递给JVM执行引擎</td>
+</tr>
+<tr>
+<td>assign（赋值）</td>
+<td>工作内存的变量</td>
+<td>把一个从JVM执行引擎接收到的值赋给工作内存的变量</td>
+</tr>
+<tr>
+<td>store（存储）</td>
+<td>工作内存的变量</td>
+<td>把工作内存中一个变量的值传送到主内存中</td>
+</tr>
+<tr>
+<td>write（写入）</td>
+<td>主内存的变量</td>
+<td>把 store 操作从工作内存中得到的变量的值放入主内存的变量中</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>“执行引擎”是一个JVM软件层面的抽象，执行引擎是JVM核心组件之一。</p>
+<p>Execution Engine职责是解释或编译（JIT编译）Java字节码，并最终将这些指令提交给底层的操作系统和硬件（包括CPU）去执行。</p>
+<p>这个过程中Execution Engine会<strong>管理Java线程的工作内存，并确保其对主内存的操作符合JMM的规定</strong>，然后才将这些底层操作（如加载、存储）委托给操作系统和CPU去完成。</p>
+</blockquote>
+<p>这八种操作实际上规定了主存与工作内存的交互流程：</p>
+<pre class="mermaid">graph TD;
+    A[对 主内存 变量 加锁] --> B[从 主内存 读数据到 工作内存 ];
+    B --> C[载入并赋值给 工作内存 变量];
+    C --> D[交给JVM执行引擎使用];
+    D --> E[JVM执行引擎 结果赋值 工作内存 变量];
+    E --> F[把 工作内存 数据存储并写回 主内存];
+    F --> G[解锁];</pre>
+
+
+
+<h4 id="内存屏障（Memory-Barrier）"><a href="#内存屏障（Memory-Barrier）" class="headerlink" title="内存屏障（Memory Barrier）"></a><strong>内存屏障（Memory Barrier）</strong></h4><p>八种内存操作和相关规则只是定义了数据交互的方式，可以做什么，但没有规定什么时候做，没有具体实现一个顺序的保证。所以，JMM 需要通过<strong>内存屏障</strong>去保证内存操作的顺序性和可见性。</p>
+<p><strong>“内存屏障是一种 CPU 指令”</strong>，主要有四种：</p>
+<ol>
+<li><strong>LoadLoad Barrier</strong>：禁止屏障前的读操作和屏障后的读操作发生重排序。</li>
+<li><strong>StoreStore Barrier</strong>：禁止屏障前的写操作和屏障后的写操作发生重排序。</li>
+<li><strong>LoadStore Barrier</strong>：禁止屏障前的读操作和屏障后的写操作发生重排序。</li>
+<li><strong>StoreLoad Barrier</strong>：禁止屏障前的所有操作和屏障后的所有操作发生重排序，开销最大。</li>
+</ol>
+<p>举个例子，<code>volatile</code> 关键字能保证有序性和可见性（但无法保证原子性）。</p>
+<ul>
+<li><strong>有序性</strong>怎么保证的呢？就是通过在适当位置插入内存屏障，禁止了指令的重排序。</li>
+<li><strong>可见性</strong>怎么保证的呢？<code>volatile</code> 会告诉 JVM，当前变量在工作内存中的值是不确定的，需要从主存中去读。其本质上是禁用了 CPU 缓存的优化，每次都必须从主存中取值，从而保证一个线程的修改对另一个线程立即可见。</li>
+</ul>
+<h4 id="4-Happens-Before-规则"><a href="#4-Happens-Before-规则" class="headerlink" title="4. Happens-Before 规则"></a><strong>4. Happens-Before 规则</strong></h4><p>八种内存交互操作在底层操作内存数据，内存屏障规定顺序和可见性。但是从程序员写代码的角度来看，你写一段代码，还是不知道编译器和处理器到底会怎么重排序、怎么优化、什么时候 load、什么时候可见。你不知道实际的执行顺序，就不知道线程 A 做的操作，线程 B 是否能看见，这就很可怕了。</p>
+<p>所以，JMM 通过 <strong>Happens-Before 规则</strong>，向程序员做了一个内存可见性的保证。Happens-Before 是可见性的一个逻辑抽象，它不关心底层怎么实现的，它只规定：<strong>如果 A happens-before B，那么 A 操作的结果必须对 B 操作可见</strong>。</p>
+<p>Happens-before 规则一共有八条，这里距离5条比较常见的：</p>
+<ul>
+<li><strong>程序顺序规则</strong>：在一个线程内，按照代码顺序，写在前面的操作 happens-before 于写在后面的操作。这个非常好理解，<code>int sum = a + b;</code> 那么如果前面有 <code>a</code>、<code>b</code> 的赋值，那么就一定会先执行。</li>
+<li><strong>监视器锁规则</strong>：一个 <code>unlock</code> 操作 happens-before 于后面对同一个锁的 <code>lock</code> 操作。同一个锁资源，两个线程分别操作，那么前一个锁执行完毕的 <code>unlock</code>，JVM 根据 JMM 规范，用内存屏障这些 CPU 指令保证 <code>unlock</code> 必须先于 <code>lock</code>。</li>
+<li><strong>线程启动规则</strong>：<code>Thread</code> 对象的 <code>start()</code> 方法 happens-before 于此线程的每一个动作。在某个 <code>Thread</code> 实例启动之前，保证前面的代码（你理解有初始化作用的）不会比 <code>thread.start()</code> 调用滞后。</li>
+<li><strong>线程终止规则</strong>：一个线程的终止操作（例如 <code>Thread.join()</code> 的成功返回，或者线程 <code>isAlive()</code> 返回 <code>false</code>）happens-before 于其他线程检测到这个线程已经终止。这保证了线程终止前所有的写入操作对其他线程是可见的。</li>
+<li><strong>传递性规则</strong>：如果 A happens-before B，且 B happens-before C，那么 A 一定 happens-before C。<strong>这个规则通常与其他 Happens-before 规则结合使用来推断可见性</strong>。下面举个例子：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TransitivityExampleSimplified</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="variable">data</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// 共享变量</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">thread1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; &#123;</span><br><span class="line">            data = <span class="number">100</span>; <span class="comment">// 这就是&quot;操作 A&quot;：线程 1 修改 data</span></span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        thread1.start(); <span class="comment">// 启动线程 1</span></span><br><span class="line">        thread1.join();   <span class="comment">// 这就是&quot;操作 B&quot;：主线程等待线程 1 终止</span></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Data: &quot;</span> + data); <span class="comment">// 这就是&quot;操作 C&quot;：主线程读取 data</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>根据程序顺序规则，A Happens-before B，因为B代表线程结束退出（join）；另外，根据线程终止原则，join返回的值修改一定会被C操作看到，B Happens-before C，根据传递性，保证了A一定先于C，也就是A Happens-before C。</p>
+<p>当程序员知道了 happens-before 规则之后，只需要判断两个操作是否满足规则。如果满足，那就有顺序性保证，就是可见的；如果不满足，那么 JVM 就可以随便地对这两个操作进行重排序。</p>
+<h3 id="总结：Java-并发工具"><a href="#总结：Java-并发工具" class="headerlink" title="总结：Java 并发工具"></a><strong>总结：Java 并发工具</strong></h3><p>了解了这些再回头看，Java 在 JMM 提供的一系列基础之上，为开发者提供了一套并发工具，让开发者能够直接使用，去解决可见性、有序性、原子性三大问题，从而避免并发安全问题。</p>
+<p>那最核心的并发工具类有哪些呢？</p>
+<ol>
+<li><code>synchronized</code>：可以直接保证可见性、有序性、原子性。</li>
+<li><code>volatile</code>：可以保证可见性、有序性。</li>
+<li><strong>CAS (Compare-And-Swap)</strong>：可以保证原子性。由 CAS 又衍生出了一系列无锁的并发工具，如 <code>Atomic</code> 原子类、<code>ReentrantLock</code>、<code>CountDownLatch</code> 等等。</li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>在深入JUC之前，我想先聊聊一下关于JMM的内容</p><p><a href="https://yelihu.github.io/2025/06/20/在深入JUC之前，我想先梳理一下关于JMM的内容/">https://yelihu.github.io/2025/06/20/在深入JUC之前，我想先梳理一下关于JMM的内容/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>虎太郎</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2025-06-20</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-06-21</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/JMM/">JMM</a><a class="link-muted mr-2" rel="tag" href="/tags/Java%E5%B9%B6%E5%8F%91/">Java并发</a><a class="link-muted mr-2" rel="tag" href="/tags/%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">内存模型</a><a class="link-muted mr-2" rel="tag" href="/tags/Happens-Before/">Happens-Before</a><a class="link-muted mr-2" rel="tag" href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a></div><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a><a class="a2a_button_facebook"></a><a class="a2a_button_twitter"></a><a class="a2a_button_telegram"></a><a class="a2a_button_whatsapp"></a><a class="a2a_button_reddit"></a></div><script src="https://static.addtoany.com/menu/page.js" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2025/06/20/%E6%B5%B7%E5%86%85%E5%A4%96Agent%E5%BC%80%E5%8F%91%E8%80%85%E5%A5%89%E4%B8%BA%E5%9C%AD%E8%87%AC%E7%9A%84%E5%8E%9F%E5%88%99/"><span class="level-item">「AI观察」关于高效构建Agent：Anthropic说了哪些让海内外AI Agent开发者奉为圭臬的原则?</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/avatar.jpg" alt="虎太郎園芸"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">虎太郎園芸</p><p class="is-size-6 is-block">Javaer｜Full Stack Developer Learner｜AI｜园艺爱好者</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>中国杭州</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">12</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">23</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/yelihu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/yelihu"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Twitter" href="https://twitter.com/yelihu.ylh"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">目录</h3><ul class="menu-list"><li><a class="level is-mobile" href="#引子：面试官的”灵魂拷问”"><span class="level-left"><span class="level-item">1</span><span class="level-item">引子：面试官的”灵魂拷问”</span></span></a></li><li><a class="level is-mobile" href="#问题的根源：CPU-与内存的速度矛盾"><span class="level-left"><span class="level-item">2</span><span class="level-item">问题的根源：CPU 与内存的速度矛盾</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#可见性问题"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">可见性问题</span></span></a></li><li><a class="level is-mobile" href="#有序性问题"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">有序性问题</span></span></a></li><li><a class="level is-mobile" href="#原子性问题"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">原子性问题</span></span></a></li></ul></li><li><a class="level is-mobile" href="#JMM-的诞生：为了跨平台"><span class="level-left"><span class="level-item">3</span><span class="level-item">JMM 的诞生：为了跨平台</span></span></a></li><li><a class="level is-mobile" href="#JMM-的解决方案"><span class="level-left"><span class="level-item">4</span><span class="level-item">JMM 的解决方案</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#工作内存与主存的抽象"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">工作内存与主存的抽象</span></span></a></li><li><a class="level is-mobile" href="#八大内存交互操作"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">八大内存交互操作</span></span></a></li><li><a class="level is-mobile" href="#内存屏障（Memory-Barrier）"><span class="level-left"><span class="level-item">4.3</span><span class="level-item">内存屏障（Memory Barrier）</span></span></a></li><li><a class="level is-mobile" href="#4-Happens-Before-规则"><span class="level-left"><span class="level-item">4.4</span><span class="level-item">4. Happens-Before 规则</span></span></a></li></ul></li><li><a class="level is-mobile" href="#总结：Java-并发工具"><span class="level-left"><span class="level-item">5</span><span class="level-item">总结：Java 并发工具</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="虎太郎園芸" height="28"></a><p class="is-size-7"><span>&copy; 2025 虎太郎</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><script src="https://cdn.bootcdn.net/ajax/libs/mermaid/8.14.0/mermaid.min.js"></script><script>mermaid.initialize({"theme":"default","startOnLoad":true});</script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
