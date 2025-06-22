@@ -10771,6 +10771,19 @@ body > .section {
   overflow: hidden;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  max-height: 250px;
+  position: relative;
+}
+.card .card-image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .card .media + .media {
   border: none;
@@ -10839,7 +10852,6 @@ article.article h4:before {
 article.article .content {
   word-wrap: break-word;
   font-size: 1.1rem;
-  padding: 20px;
 }
 article.article .content p {
   line-height: 1.8;
@@ -10905,6 +10917,13 @@ article.article .content .message.message-immersive .message-body {
   border: none;
 }
 article.article .content .mermaid {
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+  width: 75%;
+  border: 1px solid #ccc;
+}
+article.article .content .gallery-item {
   text-align: center;
   margin: 0 auto;
   display: block;
