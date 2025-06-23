@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>线程池的原理、参数、细节和动态线程池的设计 - 虎太郎園芸</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="虎太郎園芸"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="虎太郎園芸"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="引子：面试中的线程池“拷打”在今天的这篇文章里，我将讲讲如下几个问题：  为什么 Java 中线程创建和销毁的开销比较大？ 线程池的原理是什么？ 怎么样才能让线程池不去拒绝任务？ 动态参数的线程池应该怎么设计，或者说怎么在不重启应用的情况下，动态地调整线程池的核心参数？ 那怎么去监控线程池的状态，或者说怎么自己设计一个简单的线程池监控呢？  为什么需要线程池？当有大量的任务需要被执行的时候，你就想"><meta property="og:type" content="blog"><meta property="og:title" content="线程池的原理、参数、细节和动态线程池的设计"><meta property="og:url" content="https://yelihu.github.io/2025/06/23/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E5%8E%9F%E7%90%86%E3%80%81%E5%8F%82%E6%95%B0%E3%80%81%E7%BB%86%E8%8A%82%E5%92%8C%E5%8A%A8%E6%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E8%AE%BE%E8%AE%A1/"><meta property="og:site_name" content="虎太郎園芸"><meta property="og:description" content="引子：面试中的线程池“拷打”在今天的这篇文章里，我将讲讲如下几个问题：  为什么 Java 中线程创建和销毁的开销比较大？ 线程池的原理是什么？ 怎么样才能让线程池不去拒绝任务？ 动态参数的线程池应该怎么设计，或者说怎么在不重启应用的情况下，动态地调整线程池的核心参数？ 那怎么去监控线程池的状态，或者说怎么自己设计一个简单的线程池监控呢？  为什么需要线程池？当有大量的任务需要被执行的时候，你就想"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://yelihu.github.io/img/og_image.png"><meta property="article:published_time" content="2025-06-23T12:27:14.000Z"><meta property="article:modified_time" content="2025-06-23T12:28:05.199Z"><meta property="article:author" content="虎太郎園芸"><meta property="article:tag" content="后端开发,Java,Spring,微服务,人工智能,AI,机器学习,读书笔记,技术分享,园艺,编程,软件开发,全栈开发,技术博客"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://yelihu.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://yelihu.github.io/2025/06/23/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E5%8E%9F%E7%90%86%E3%80%81%E5%8F%82%E6%95%B0%E3%80%81%E7%BB%86%E8%8A%82%E5%92%8C%E5%8A%A8%E6%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E8%AE%BE%E8%AE%A1/"},"headline":"线程池的原理、参数、细节和动态线程池的设计","image":["https://yelihu.github.io/img/og_image.png"],"datePublished":"2025-06-23T12:27:14.000Z","dateModified":"2025-06-23T12:28:05.199Z","author":{"@type":"Person","name":"虎太郎園芸"},"publisher":{"@type":"Organization","name":"虎太郎園芸","logo":{"@type":"ImageObject","url":"https://yelihu.github.io/img/logo.svg"}},"description":"引子：面试中的线程池“拷打”在今天的这篇文章里，我将讲讲如下几个问题：  为什么 Java 中线程创建和销毁的开销比较大？ 线程池的原理是什么？ 怎么样才能让线程池不去拒绝任务？ 动态参数的线程池应该怎么设计，或者说怎么在不重启应用的情况下，动态地调整线程池的核心参数？ 那怎么去监控线程池的状态，或者说怎么自己设计一个简单的线程池监控呢？  为什么需要线程池？当有大量的任务需要被执行的时候，你就想"}</script><link rel="canonical" href="https://yelihu.github.io/2025/06/23/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E5%8E%9F%E7%90%86%E3%80%81%E5%8F%82%E6%95%B0%E3%80%81%E7%BB%86%E8%8A%82%E5%92%8C%E5%8A%A8%E6%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E8%AE%BE%E8%AE%A1/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link data-pjax rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.svg" alt="虎太郎園芸" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">首页</a><a class="navbar-item" href="/archives">Timeline</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于作者</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item copyright article-title type-2">原创</span><span class="level-item"><time dateTime="2025-06-23T12:27:14.000Z" title="2025/6/23 20:27:14">2025-06-23</time>发表</span><span class="level-item"><time dateTime="2025-06-23T12:28:05.199Z" title="2025/6/23 20:28:05">2025-06-23</time>更新</span><span class="level-item">19 分钟读完 (大约2781个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">线程池的原理、参数、细节和动态线程池的设计</h1><div class="copyright article-block type-2"><p>版权申明：本文为原创文章，转载请注明原文出处</p><p>原文链接：<a href="https://yelihu.github.io/2025/06/23/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E5%8E%9F%E7%90%86%E3%80%81%E5%8F%82%E6%95%B0%E3%80%81%E7%BB%86%E8%8A%82%E5%92%8C%E5%8A%A8%E6%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E8%AE%BE%E8%AE%A1/" target="_blank">yelihu.github.io</a></p></div><div class="content"><h2 id="引子：面试中的线程池“拷打”"><a href="#引子：面试中的线程池“拷打”" class="headerlink" title="引子：面试中的线程池“拷打”"></a>引子：面试中的线程池“拷打”</h2><p>在今天的这篇文章里，我将讲讲如下几个问题：</p>
+<ul>
+<li>为什么 Java 中线程创建和销毁的开销比较大？</li>
+<li>线程池的原理是什么？</li>
+<li>怎么样才能让线程池不去拒绝任务？</li>
+<li>动态参数的线程池应该怎么设计，或者说怎么在不重启应用的情况下，动态地调整线程池的核心参数？</li>
+<li>那怎么去监控线程池的状态，或者说怎么自己设计一个简单的线程池监控呢？</li>
+</ul>
+<h2 id="为什么需要线程池？"><a href="#为什么需要线程池？" class="headerlink" title="为什么需要线程池？"></a>为什么需要线程池？</h2><p>当有大量的任务需要被执行的时候，你就想到了使用多线程。正要 <code>new Thread()</code>，调用 <code>start()</code> 方法的时候，又想到了线程资源很昂贵，频繁地创建和销毁开销很大。</p>
+<p>那为什么线程的创建和销毁开销比较大呢？Java 线程模型是“一对一”的，也就是说，一个 Java 线程对应了一个操作系统的内核级线程。那么创建一个 Java 线程，就需要通过系统调用，让操作系统切换到内核态去创建内核级线程，这就涉及到了用户态和内核态的切换、线程资源的分配、栈空间的分配等。同样的，销毁线程也需要操作系统切换到内核态去回收这些资源。所以，Java 中线程的创建和销毁开销非常大。</p>
+<p>然后呢，Java 21 就出现了虚拟线程（Virtual Thread），或者说协程。它就是“多对多”的线程模型，基于用户态的调度，所以很轻量级。但是，你看这项目中的 Java 8，陷入了沉默。</p>
+<p>那既然 Java 8 线程的创建和销毁开销都比较大，有没有一种可能，可以把创建好的线程放入到一个容器中，需要用的时候再去拿，然后用完之后我也不销毁，而是放回去？这样每次复用容器中已存在的线程，就能避免线程频繁地去创建和销毁了！</p>
+<p>这就是我们经常说的线程池。</p>
+<h2 id="线程池的核心工作原理"><a href="#线程池的核心工作原理" class="headerlink" title="线程池的核心工作原理"></a>线程池的核心工作原理</h2><p>那么问题来了，一般情况下，线程池中的线程也就十几个、几十个，但是要处理的任务往往有成百上千个。你把线程累死，给 CPU 干冒烟了，它一下子也处理不完。那线程处理不完的任务怎么办？排队等待！搞一个阻塞队列（BlockingQueue），把暂时处理不完的任务放到阻塞队列里面。当线程处理完手头的任务，再从阻塞队列中拿出任务进行处理。</p>
+<h3 id="阻塞队列满了怎么办？"><a href="#阻塞队列满了怎么办？" class="headerlink" title="# 阻塞队列满了怎么办？"></a># 阻塞队列满了怎么办？</h3><p>那么问题来了，阻塞队列的大小是有上限的，那阻塞队列满了怎么办？</p>
+<p>队列满了，说明任务量很多，当前系统的压力比较大。那我们可以再新建一些临时的线程来紧急地处理。那如果队列中的任务都执行完了，临时线程也空闲了，是不是应该销毁呢？队列中都没任务了，说明系统不忙了。不忙了，这些“临时工”肯定就不用了，都要销毁的。所以需要设置一下临时线程的最大空闲时间，超过这个时间之后就直接销毁。</p>
+<h3 id="临时线程也满了怎么办？"><a href="#临时线程也满了怎么办？" class="headerlink" title="# 临时线程也满了怎么办？"></a># 临时线程也满了怎么办？</h3><p>那么问题又来了，如果任务量它就是很大，阻塞队列满了，临时线程也都在忙，这时候来了新任务应该怎么办？</p>
+<p>这就需要定义一套拒绝策略（Rejection Policy）来拒绝这些新来的任务了。</p>
+<h3 id="谁来创建线程？"><a href="#谁来创建线程？" class="headerlink" title="# 谁来创建线程？"></a># 谁来创建线程？</h3><p>那么问题又又来了，这个线程池应该以什么样的方式创建线程呢？应该创建什么样的线程呢，普通线程还是守护线程？那创建线程的时候应该怎么给线程命名呢？所以，最好要搞一个线程工厂（ThreadFactory）来统一负责创建线程，顺便可以根据业务去给线程和线程池命名。</p>
+<p>这样的话，业务出问题就能定位到对应的线程池和线程，线程出了问题也能定位到具体的业务。所以，这也说明了<strong>不同的业务共用一个线程池肯定是不好的，不同的业务最好要用不同的线程池</strong>。</p>
+<h2 id="线程池的七大参数与执行流程"><a href="#线程池的七大参数与执行流程" class="headerlink" title="线程池的七大参数与执行流程"></a>线程池的七大参数与执行流程</h2><p>以上呢，就是线程池的七大核心参数了：</p>
+<ol>
+<li><strong>核心线程数 (corePoolSize)</strong></li>
+<li><strong>最大线程数 (maximumPoolSize)</strong></li>
+<li><strong>临时线程的空闲时间 (keepAliveTime)</strong></li>
+<li><strong>时间单位 (unit)</strong></li>
+<li><strong>阻塞队列 (workQueue)</strong></li>
+<li><strong>线程工厂 (threadFactory)</strong></li>
+<li><strong>拒绝策略 (handler)</strong></li>
+</ol>
+<p>OK，总结一下线程池的执行流程：</p>
+<p>当一个任务被提交到线程池的时候，如果核心线程空闲，那就交给核心线程去执行；否则，尝试放入阻塞队列。如果阻塞队列没满，就成功入队；如果队列满了，就创建临时线程进行处理；如果说队列满了，而且临时线程也都在忙，那就触发拒绝策略。</p>
+<h2 id="如何让线程池不拒绝任务？"><a href="#如何让线程池不拒绝任务？" class="headerlink" title="如何让线程池不拒绝任务？"></a>如何让线程池不拒绝任务？</h2><p>那么问题来了，我不想拒绝任务怎么办？</p>
+<p>有些“大聪明”就要说了，可以把阻塞队列设置得大一点，设置成无界队列。这样的话，来再多的任务它都能容纳下去，就不用拒绝了。但你要知道，队列可以是无界的，但服务器的内存是有限的呀！随着任务越来越多，内存肯定会满，最后频繁地 Full GC，然后触发 OOM (OutOfMemoryError)。</p>
+<p>那咋办呢？</p>
+<h3 id="方案一：CallerRunsPolicy"><a href="#方案一：CallerRunsPolicy" class="headerlink" title="# 方案一：CallerRunsPolicy"></a># 方案一：CallerRunsPolicy</h3><p>有个拒绝策略叫 <code>CallerRunsPolicy</code>，它的作用就是“谁往线程池中提交任务，谁就去执行这个任务”。这种方式确实可以避免丢弃任务，但是让业务线程（比如处理前端请求的 Tomcat 线程）去执行这些耗时任务，可能会导致业务线程被拖慢，没有办法及时地处理前端发来的请求。所以，这个拒绝策略只能适用于<strong>低并发、且不想丢弃任务</strong>的场景。</p>
+<h3 id="方案二：任务持久化（推荐）"><a href="#方案二：任务持久化（推荐）" class="headerlink" title="# 方案二：任务持久化（推荐）"></a># 方案二：任务持久化（推荐）</h3><p>你又想性能好，又不想丢弃任务，那怎么办呢？</p>
+<p>你想想操作系统中学到的内存和磁盘：想要内存中的数据断电不丢失，就要持久化到磁盘中。再想想操作系统中虚拟内存的请求分页：当无法加载所有数据到内存的时候，只加载必要的，需要其他数据时再触发缺页中断，然后从磁盘中读入内存。</p>
+<p>所以，线程池想要任务不被丢弃，就要做<strong>任务持久化</strong>。我们可以自定义拒绝策略，把需要拒绝的任务存到 MySQL、Redis 或者 MQ 中。然后，重写线程池的 <code>afterExecute()</code> 方法。当线程池执行完一个任务的时候，说明此时线程池有可能空闲了，那么就判断一下线程池中阻塞队列的大小。如果说阻塞队列还比较空，那么就从 MySQL、Redis 或者 MQ 中读取之前持久化的任务，然后放入线程池的阻塞队列中再进行处理。这样就做到了不丢弃任务。</p>
+<p>除了重写 <code>afterExecute()</code> 方法之外，还可以自定义一个组合队列。当线程从阻塞队列中取任务的时候，判断一下队列中任务量的多少。如果队列中任务比较少，那就主动从 MySQL、Redis、MQ 中去读取那些被持久化的任务，然后读到阻塞队列里，线程池就可以执行这些任务了。这也同样做到了不丢弃任务。</p>
+<h2 id="如何设计动态参数的线程池？"><a href="#如何设计动态参数的线程池？" class="headerlink" title="如何设计动态参数的线程池？"></a>如何设计动态参数的线程池？</h2><p>或者说，怎么在不重启应用的情况下，动态调整线程池的核心参数？</p>
+<p>其实，线程池本身就提供了一系列的 <code>set</code> 方法，能够让你在运行时去修改核心参数，比如说 <code>setCorePoolSize()</code>、<code>setMaximumPoolSize()</code> 等等。调用这些 <code>set</code> 方法就能去动态地修改核心线程数、最大线程数等参数了。</p>
+<p>然后，我们可以把这些配置放到配置中心里面（如 Nacos、Apollo）。线程池去监听配置中心，当配置中心发生了配置变化的时候，线程池就能够监听到，然后调用 <code>set</code> 方法动态地去修改这些参数。</p>
+<p>但是有一个问题，Java 中的阻塞队列的容量是用 <code>final</code> 修饰的，也就是说，阻塞队列的大小是不可变的。这里你要想实现阻塞队列大小可变，想要实现动态的阻塞队列，那就得自己重新写一个大小可变的阻塞队列。</p>
+<p>这样，就实现了不重启应用，通过修改配置中心的配置，就可以动态地去调整线程池的核心参数了。</p>
+<h2 id="如何监控线程池的状态？"><a href="#如何监控线程池的状态？" class="headerlink" title="如何监控线程池的状态？"></a>如何监控线程池的状态？</h2><p>或者说，自己怎么设计一个简单的线程池监控呢？</p>
+<ul>
+<li><strong>第一步：定义指标。</strong> 你得定义一系列的线程池监控指标，比如说：活跃线程数、线程池当前总线程数、阻塞队列当前大小、已完成任务数、总任务数等等。</li>
+<li><strong>第二步：采集指标。</strong> 怎么收集呢？你可以用定时任务，每隔几秒采集一下这些指标数据；那也可以重写 <code>afterExecute()</code> 或者 <code>beforeExecute()</code> 方法，在任务执行前后去采集；或者说在任务提交的时候去采集这些指标数据。</li>
+<li><strong>第三步：上报与展示。</strong> 把这些指标数据上报到监控系统里面（如 Prometheus），通过可视化图表（如 Grafana）的方式去展示这些指标数据就可以了。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>线程池的原理、参数、细节和动态线程池的设计</p><p><a href="https://yelihu.github.io/2025/06/23/线程池的原理、参数、细节和动态线程池的设计/">https://yelihu.github.io/2025/06/23/线程池的原理、参数、细节和动态线程池的设计/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>虎太郎園芸</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2025-06-23</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2025-06-23</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="a2a_kit a2a_kit_size_32 a2a_default_style"><a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a><a class="a2a_button_facebook"></a><a class="a2a_button_twitter"></a><a class="a2a_button_telegram"></a><a class="a2a_button_whatsapp"></a><a class="a2a_button_reddit"></a></div><script src="https://static.addtoany.com/menu/page.js" defer></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/" alt="支付宝"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2025/06/23/ThreadLocal%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F/"><span class="level-item">SystemDesign | ThreadLocal：从原理到内存泄漏</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/img/avatar.jpg" alt="虎太郎園芸"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">虎太郎園芸</p><p class="is-size-6 is-block">Javaer｜Full Stack Developer Learner｜AI｜园艺爱好者</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>中国杭州</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives/"><p class="title">18</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories/"><p class="title">14</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags/"><p class="title">44</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/yelihu" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/yelihu"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Twitter" href="https://twitter.com/yelihu.ylh"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.svg" alt="虎太郎園芸" height="28"></a><p class="is-size-7"><span>&copy; 2025 虎太郎園芸</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><script src="https://cdn.bootcdn.net/ajax/libs/mermaid/8.14.0/mermaid.min.js"></script><script>mermaid.initialize({"theme":"default","startOnLoad":true});</script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
