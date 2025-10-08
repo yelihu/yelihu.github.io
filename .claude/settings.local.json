@@ -8,7 +8,16 @@
       "Bash(lsof:*)",
       "Bash(xargs kill:*)",
       "Bash(node:*)",
-      "Bash(git remote add:*)"
+      "Bash(git remote add:*)",
+      "Read(//Users/apple/dev/HEXO/source/_posts/**)",
+      "Bash(for:*)",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(do echo:*)",
+      "Bash(while:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

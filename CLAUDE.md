@@ -118,6 +118,73 @@ categories:
   - Rivalries
 ```
 
+## 本项目 Front-matter 规范
+
+基于项目现有文章分析，制定了以下 Front-matter 属性规范：
+
+### 核心属性（必须包含）
+
+| 属性 | 描述 | 示例格式 |
+|------|------|---------|
+| `title` | 文章标题 | `title: AQS总成为你大厂面试的"滑铁卢"？别让它成为送命题了` |
+| `date` | 发布日期 | `date: 2025-06-22 19:57:57` |
+| `author` | 作者 | `author: 虎太郎` |
+| `toc` | 是否显示目录 | `toc: true` |
+| `categories` | 文章分类（支持层级） | 见下方分类示例 |
+| `tags` | 文章标签 | 见下方标签示例 |
+
+### 常用属性（推荐包含）
+
+| 属性 | 描述 | 使用建议 |
+|------|------|---------|
+| `updated` | 更新日期 | 当文章有修改时添加 |
+| `excerpt` | 文章摘要 | 用于SEO和文章列表展示 |
+| `cover` | 封面图片 | 使用完整的URL链接 |
+| `description` | 文章描述 | 更详细的文章说明 |
+
+### 偶见属性（按需使用）
+
+| 属性 | 描述 |
+|------|------|
+| `copy_from` | 转载来源 |
+
+### 属性示例
+
+**标准格式**：
+```yaml
+---
+title: AQS总成为你大厂面试的"滑铁卢"？别让它成为送命题了
+date: 2025-06-22 19:57:57
+updated: 2025-06-22 19:57:57
+author: 虎太郎
+toc: true
+categories:
+  - Java
+  - 分布式中间件
+tags:
+  - AQS
+  - Java
+  - JUC
+  - 并发
+  - 多线程
+excerpt: 文章摘要内容
+cover: https://example.com/image.jpg
+---
+```
+
+**分类层级示例**：
+- 单级分类：`categories: - AI`
+- 多级分类：`categories: - Java - 分布式中间件`
+- 复杂分类：`categories: - [Java, 技术] - [分布式, 中间件]`
+
+**标签设置**：
+```yaml
+tags:
+  - AI
+  - Prompt Engineering
+  - Cursor
+```
+
 ## 开发注意事项
 
 - `source/` 中的静态资源在站点根目录提供服务（例如：`source/img/logo.svg` → `/img/logo.svg`）
@@ -125,3 +192,4 @@ categories:
 - 自定义 CSS 应放在 `source/css/` 中以覆盖主题样式
 - 文章中引用的图片应使用相对路径或放在 `source/img/` 中
 - 文章文件应放在 `source/_posts/` 目录下，支持 Markdown 格式
+- **重要**：创建新文章时请遵循上述 Front-matter 规范，确保文章元数据的一致性和完整性
