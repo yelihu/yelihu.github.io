@@ -107,8 +107,10 @@ navbar:
     menu:
         首页: /
         归档: /archives
-        分类: /categories
-        标签: /tags
+        # 分类: /categories
+        # 标签: /tags
+        AI: /categories/AI
+        Notes: /Notes
         关于: /about
     # Links to be shown on the right of the navigation bar
     links:
