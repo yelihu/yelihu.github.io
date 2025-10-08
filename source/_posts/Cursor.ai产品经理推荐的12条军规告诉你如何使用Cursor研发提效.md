@@ -8,8 +8,6 @@ categories:
 tags:
   - AI与机器学习
   - Prompt工程
-  - 开发工具
-  - Cursor
   - 研发提效
 description: 本文详细解析Cursor.ai产品经理Ryo Lu推荐的12条Cursor使用规范，旨在帮助开发者和产品经理掌握AI编码工具的正确姿势，从而显著提升研发效率、优化代码质量，并有效规避常见误区。适合所有希望通过AI提效的专业人士阅读。
 author: 虎太郎
