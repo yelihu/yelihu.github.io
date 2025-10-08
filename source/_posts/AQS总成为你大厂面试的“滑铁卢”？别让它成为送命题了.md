@@ -15,7 +15,7 @@ tags:
     - ReentrantLock
     - Synchronized
 description: 本文深入浅出地剖析了Java并发编程中AQS（AbstractQueuedSynchronizer）的核心原理与设计思想，涵盖了其状态变量、线程安全机制、等待队列以及独占与共享模式等关键知识点，是理解和掌握JUC并发工具的必备指南。
-author: 虎太郎
+author: Ye Lihu
 excerpt: 在这篇文章中，我将通过层层递进的思考，最终揭示AQS（AbstractQueuedSynchronizer）的精妙设计。如果你对ReentrantLock、synchronized、Semaphore等并发工具的底层实现感到困惑，那么这篇文章也许能解答一些问题。
 ---
 

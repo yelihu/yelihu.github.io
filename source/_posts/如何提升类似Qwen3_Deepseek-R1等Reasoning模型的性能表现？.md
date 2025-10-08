@@ -8,7 +8,7 @@ tags:
   - Deepseek-R1
 categories:
   - AI
-author: 虎太郎
+author: Ye Lihu
 toc: true
 ---
 

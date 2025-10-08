@@ -10,7 +10,7 @@ tags:
   - AI与机器学习
   - AI产品
 description: 深度体验 Kiro IDE 的核心功能，详细对比其与 Cursor 的差异，探讨 AI 驱动开发工具的不同设计理念。
-author: 虎太郎
+author: Ye Lihu
 excerpt: 我有幸在 Kiro IDE 内测期间体验了这款新兴的 AI 开发工具，并深入研究了它的三大核心概念：Steering、Spec 和 Hook。相比 Cursor 追求极致的 vibe 体验，Kiro 更像是一位能独立思考和执行的"AI项目经理"，强调规范化、自动化和长期可维护性。特别是 Spec 功能，从需求输入到设计蓝图再到技术方案执行，让开发过程更加工程化和可追溯。如果你正在寻找一个更注重软件工程规范的 AI 开发助手，这篇详细的对比分析一定会给你带来启发。
 ---
 # Kiro IDE 上手：核心概念和Cursor对比

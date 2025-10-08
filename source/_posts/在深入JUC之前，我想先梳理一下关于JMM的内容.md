@@ -11,7 +11,7 @@ tags:
   - JVM
   - Happens-Before
 description: 本文深入探讨了Java内存模型（JMM）的核心概念，从CPU与内存的速度矛盾出发，解释了可见性、有序性和原子性三大并发问题，并详细介绍了JMM如何通过工作内存、八大内存交互操作、内存屏障以及Happens-Before规则来解决这些问题，为理解Java并发编程（JUC）打下坚实基础。
-author: 虎太郎
+author: Ye Lihu
 excerpt: 为什么要有JMM？本文将带你从根源上理解Java内存模型，彻底搞懂可见性、有序性、原子性问题，以及JMM这一层提供了哪些抽象来
 ---
 

@@ -9,7 +9,7 @@ categories:
   - AI
   - Agent设计
 excerpt: 深度解读OpenAI最新Agent指南！掌握构建高效AI Agent的五大核心要点：从智能模型选择到安全护栏搭建，助你打造领先的AI代理应用。
-author: 虎太郎
+author: Ye Lihu
 toc: true
 ---
 

@@ -9,7 +9,7 @@ tags:
 categories:
   - AI
   - Prompt Engineering
-author: 虎太郎
+author: Ye Lihu
 toc: true
 copy_from: https://www.instructa.ai/ai-prompts/create-cursor-rule-prompt
 excerpt: 在日常开发实践中，经常需要编写既不过于细节化、又不过于抽象的 Cursor Rule，以确保其具备实际指导意义。本文分享（转载）了一种针对特定开发框架生成 Cursor Project Rule 的 AI Prompt 模板，借助该模板，AI 可自动生成 Rule 文件内容，从而有效减轻编写 Cursor Rule 的负担。

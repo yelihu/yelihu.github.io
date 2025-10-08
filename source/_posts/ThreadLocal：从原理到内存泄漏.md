@@ -13,7 +13,7 @@ tags:
     - 内存模型
     - 内存泄漏
 description: 深入解析 ThreadLocal 的工作原理、数据存储机制以及为什么其 Key 设计为弱引用而 Value 为强引用。文章详细分析了 ThreadLocal 内存泄漏的成因及避免方法，并探讨了 JVM 类卸载机制对 ThreadLocal 行为的影响。
-author: 虎太郎
+author: Ye Lihu
 excerpt: 我在这篇文章中深入探讨了 ThreadLocal 的核心原理，从数据存储到弱引用的巧妙设计，以及为什么 Value 必须是强引用。我特别分析了 ThreadLocal 内存泄漏的根本原因，并强调了在 `finally` 块中调用 `remove()` 方法的重要性。如果你对 ThreadLocal 的内部机制和如何避免常见陷阱感到困惑，这篇文章将为你提供清晰的解答，帮助你彻底掌握这一关键并发工具。
 ---
 

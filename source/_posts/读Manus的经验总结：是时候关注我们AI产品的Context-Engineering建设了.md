@@ -12,7 +12,7 @@ tags:
   - AI产品设计
   - 阅读笔记
 description: 深度解读 Manus 关于 Context Engineering 的经验分享，探讨 AI 产品中上下文工程建设的重要性和实践方法。
-author: 虎太郎
+author: Ye Lihu
 excerpt: 最近读到了 Manus 关于Context Engineering的一篇深度分享在中外互联网爆火，刷新了大家对Context Engineering产品的上下文工程建设有了全新的认识。Context Engineering 不仅仅是技术层面的考量，更是 AI 产品能否真正发挥价值的关键所在。在这篇文章中，我将中英对照尝试着去结合自己的实践去解读这篇文章，顺便聊聊我自己的想法。
 ---
 
