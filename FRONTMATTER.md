@@ -33,15 +33,14 @@ date: 2013/7/13 20:46:25
 | `toc` | Boolean | 是否显示目录 | `toc: true` |
 | `categories` | Array | 文章分类 | 见下方分类示例 |
 | `tags` | Array | 文章标签 | 见下方标签示例 |
+| `excerpt` | String | 文章摘要 | 用于SEO和文章列表展示 |
 
 ### 常用属性（推荐包含）
 
 | 属性 | 类型 | 描述 | 使用建议 |
 |------|------|------|---------|
 | `updated` | DateTime | 更新日期 | 当文章有修改时添加 |
-| `excerpt` | String | 文章摘要 | 用于SEO和文章列表展示 |
 | `cover` | String | 封面图片 | 使用完整的URL链接 |
-| `description` | String | 文章描述 | 更详细的文章说明 |
 | `layout` | String | 布局类型 | 通常使用默认值 |
 | `comments` | Boolean | 开启评论功能 | 默认为 `true` |
 
@@ -190,8 +189,6 @@ excerpt: 记录一次Context7 MCP服务器连接失败的解决过程
 ### 推荐日期格式
 ```yaml
 date: 2025-06-22 19:57:57    # 年-月-日 时:分:秒
-date: 2025/06/22 19:57:57    # 年/月/日 时:分:秒
-date: 2025-06-22             # 只有日期
 ```
 
 ### 更新日期设置
