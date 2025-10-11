@@ -29,7 +29,7 @@ date: 2013/7/13 20:46:25
 |------|------|------|------|
 | `title` | String | 文章标题 | `title: AQS总成为你大厂面试的"滑铁卢"？` |
 | `date` | DateTime | 发布日期 | `date: 2025-06-22 19:57:57` |
-| `author` | String | 作者 | `author: 虎太郎` |
+| `author` | String | 作者 | `author: Ye Lihu` |
 | `toc` | Boolean | 是否显示目录 | `toc: true` |
 | `categories` | Array | 文章分类 | 见下方分类示例 |
 | `tags` | Array | 文章标签 | 见下方标签示例 |
@@ -125,7 +125,7 @@ tags:
 title: 文章标题
 date: 2025-06-22 19:57:57
 updated: 2025-06-22 19:57:57
-author: 虎太郎
+author: Ye Lihu
 toc: true
 categories:
   - Java
@@ -148,7 +148,7 @@ cover: https://example.com/cover-image.jpg
 ---
 title: 文章标题
 date: 2025-06-18 20:48:20
-author: 虎太郎
+author: Ye Lihu
 toc: true
 categories:
   - AI
@@ -168,7 +168,7 @@ excerpt: 简短摘要，吸引用户点击阅读
 ---
 title: 文章标题
 date: 2025-07-21 10:30:00
-author: 虎太郎
+author: Ye Lihu
 toc: true
 categories:
   - 技术

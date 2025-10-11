@@ -40,7 +40,7 @@
 ---
 title: 文章标题
 date: 2025-01-01 12:00:00
-author: 虎太郎
+author: Ye Lihu
 toc: true
 categories:
   - 分类名

@@ -1,7 +1,7 @@
 ---
 title: 用Playwright解决需要登录态的API数据获取问题
 date: 2025-10-11 22:53:43
-author: 虎太郎
+author: Ye Lihu
 toc: true
 categories:
   - 实战经验
